@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="token是什么 &amp;nbsp;&amp;nbsp;token用计算机术语来说就是一个令牌，看了这个令牌术语的解析不是很懂，不如我们换个通俗的说法，暗号，我们都知道古代打仗时期军事信息的交流都是通过暗号验证的，所以token就是一个暗号，在数据传输之前，都要先进行校对暗号，不同的数据传输是对应不同的暗号的。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Token 机制的简析">
+<meta property="og:url" content="http://doywsc.com/2018/09/17/Token-机制的简析/index.html">
+<meta property="og:site_name" content="船的博客">
+<meta property="og:description" content="token是什么 &amp;nbsp;&amp;nbsp;token用计算机术语来说就是一个令牌，看了这个令牌术语的解析不是很懂，不如我们换个通俗的说法，暗号，我们都知道古代打仗时期军事信息的交流都是通过暗号验证的，所以token就是一个暗号，在数据传输之前，都要先进行校对暗号，不同的数据传输是对应不同的暗号的。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://doywsc.com/2018/09/17/Token-机制的简析/token.jpg">
+<meta property="og:updated_time" content="2018-09-20T13:35:01.329Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Token 机制的简析">
+<meta name="twitter:description" content="token是什么 &amp;nbsp;&amp;nbsp;token用计算机术语来说就是一个令牌，看了这个令牌术语的解析不是很懂，不如我们换个通俗的说法，暗号，我们都知道古代打仗时期军事信息的交流都是通过暗号验证的，所以token就是一个暗号，在数据传输之前，都要先进行校对暗号，不同的数据传输是对应不同的暗号的。">
+<meta name="twitter:image" content="http://doywsc.com/2018/09/17/Token-机制的简析/token.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"Transition variants":"fadeIn | fadeOut | flipXIn | flipXOut | flipYIn | flipYOut | flipBounceXIn | flipBounceXOut | flipBounceYIn | flipBounceYOut swoopIn | swoopOut | whirlIn | whirlOut | shrinkIn | shrinkOut | expandIn | expandOut bounceIn | bounceOut | bounceUpIn | bounceUpOut | bounceDownIn | bounceDownOut | bounceLeftIn | bounceLeftOut | bounceRightIn | bounceRightOut slideUpIn | slideUpOut | slideDownIn | slideDownOut | slideLeftIn | slideLeftOut | slideRightIn | slideRightOut","post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://doywsc.com/2018/09/17/Token-机制的简析/"/>
+
+
+
+
+
+  <title>Token 机制的简析 | 船的博客</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+<a href="https://github.com/dcandoyws" class="github-corner" aria-label="View source on Github">
+<svg width="80" height="80" viewBox="0 0 250 250" style="fill:#70B7FD; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm">
+</path>
+<path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body">
+</path></svg></a>
+<style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">船的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://doywsc.com/2018/09/17/Token-机制的简析/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="DC">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="船的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Token 机制的简析</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-09-17T21:46:00+08:00">
+                2018-09-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/前端/" itemprop="url" rel="index">
+                    <span itemprop="name">前端</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="token是什么"><a href="#token是什么" class="headerlink" title="token是什么"></a>token是什么</h3><p> &nbsp;&nbsp;token用计算机术语来说就是一个令牌，看了这个令牌术语的解析不是很懂，不如我们换个通俗的说法，暗号，我们都知道古代打仗时期军事信息的交流都是通过暗号验证的，所以token就是一个暗号，在数据传输之前，都要先进行校对暗号，不同的数据传输是对应不同的暗号的。<br> <img src="/2018/09/17/Token-机制的简析/token.jpg" alt="&quot;Token&quot;" title="Token"><br> <a id="more"></a></p>
+<h3 id="token的作用"><a href="#token的作用" class="headerlink" title="token的作用"></a>token的作用</h3><p> &nbsp;&nbsp;上面也说了token就是在数据传输前的进行验证的暗号，那我们来说一下具体可以应用于哪些场景：</p>
+<ul>
+<li>用户登录的身份验证</li>
+<li>防止表单重复提交</li>
+<li>防止CSRF攻击</li>
+</ul>
+<p>这些应用场景我们下面会详细介绍下面我们来说一说token的优势，就是我们为什么要用它</p>
+<h3 id="token的优势"><a href="#token的优势" class="headerlink" title="token的优势"></a>token的优势</h3><h4 id="支持跨区域访问："><a href="#支持跨区域访问：" class="headerlink" title="支持跨区域访问："></a>支持跨区域访问：</h4><p>Cookie是不允许跨区域访问的，token机制是允许的，不过传输用户认证信息是通过HTTP头传输的</p>
+<h4 id="无状态（服务器可扩展性）："><a href="#无状态（服务器可扩展性）：" class="headerlink" title="无状态（服务器可扩展性）："></a>无状态（服务器可扩展性）：</h4><p>token机制不需要在服务端存储session信息，因为token自身就包含了用户登录的所有信息，只需要在客户端Cookie或者本地存储状态信息</p>
+<h4 id="去耦："><a href="#去耦：" class="headerlink" title="去耦："></a>去耦：</h4><p>不需要绑定到一个特定的身份验证方案，token可以在任何地方生成，只要在你的api被调用的时候，你可以进行token生成调用即可。</p>
+<h4 id="性能："><a href="#性能：" class="headerlink" title="性能："></a>性能：</h4><p>一次网络往返时间（通过数据库访问session信息）总比做一次HMACSHA256计算花的时间多得多</p>
+<h3 id="基于JWT的Token认证机制的实现"><a href="#基于JWT的Token认证机制的实现" class="headerlink" title="基于JWT的Token认证机制的实现"></a>基于JWT的Token认证机制的实现</h3><p>JSON Web Token是一个非常轻巧的规范，它允许我们使用JWT在用户和服务器之间保持可靠安全的信息传递</p>
+<ul>
+<li>JWT的组成<br>其实JWT就是一个字符串，这个字符串是由三个部分组成：<ul>
+<li>头部（Header）<br>这是用于描述该JWT最基本的信息，例如其类型及签名所用到的算法等。可以被表示成一个JSON对象<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">&quot;type&quot;:&quot;JWT&quot;</span><br><span class="line">&quot;alg&quot;:&quot;HS256&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+<p>上面就是说类型是JWT，用到的算法是HS256。<br>头部也是需要Base64编码，编码后的字符串如下：<br><code>eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9</code></p>
+<ul>
+<li><p>载荷（payload）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">&quot;iss&quot;:&quot;Online JWT Bulider&quot;,</span><br><span class="line">&quot;iat&quot;:1416797419,</span><br><span class="line">&quot;exp&quot;:1448333419,</span><br><span class="line">&quot;aud&quot;:&quot;wwww.example.com&quot;</span><br><span class="line">&quot;sub&quot;:&quot;dc@example.com&quot;</span><br><span class="line">&quot;GiveName&quot;:&quot;sun&quot;</span><br><span class="line">&quot;Surname&quot;:&quot;Rocket&quot;</span><br><span class="line">&quot;Email&quot;:&quot;dc@qq.com&quot;</span><br><span class="line">&quot;Role&quot;:[&quot;Manager&quot;,&quot;Project Administrater&quot;]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>iss:该JWT的签发者，是否使用是可选的</li>
+<li>sub：该JWT所面向的用户，是否使用是可选的</li>
+<li>exp：啥时候过期，这是一个时间戳，是否使用时可选的</li>
+<li>aud：接收该JWT的一方，是否使用时可选的</li>
+<li>iat：在什么时候签发的（unix时间），是否使用是可选的<br>将以上json对象使用Base64编码可以得到以下的字符串（我们称之为载荷（payload））：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">eyJpc3MiOiJKb2huIFd1IEpXVCIsImlhdCI6MTQ0MTU5MzUwMiwiZXhwIjoxNDQxNTk0NzIyLCJhdWQiOiJ3d3cuZXhhbXBsZS5jb20iLCJzdWIiOiJqcm9ja2V0QGV4YW1wbGUuY29tIiwiZnJvbV91c2VyIjoiQiIsInRhcmdldF91c2VyIjoiQSJ9</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>签名<br>将上面两个编码后的字符串用.连接在一起如下：<br><code>eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcm9tX3VzZXIiOiJCIiwidGFyZ2V0X3VzZXIiOiJBIn0</code><br>然后我们对上面字符串进行加密，加密用HS256算法。加密的时候我们需要提供一个密钥（secret）。如果我们使用mystar作为密钥的话，那我们就可以得到加密后的以下内容：<br><code>rSWamyAYwuHCo7IFAgd1oRpSP7nzL7BF5t7ItqpKViM</code><br>那好我们已经获得了JWT的三个组成部分，现在将它们用.连接起来：<br><code>eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcm9tX3VzZXIiOiJCIiwidGFyZ2V0X3VzZXIiOiJBIn0.rSWamyAYwuHCo7IFAgd1oRpSP7nzL7BF5t7ItqpKViM</code><br>这就是我们所需要的JWT字符串，这也会在我们的请求中出现，比如这样：<br><code>https://your.awesome-app.com/make-friend/?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcm9tX3VzZXIiOiJCIiwidGFyZ2V0X3VzZXIiOiJBIn0.rSWamyAYwuHCo7IFAgd1oRpSP7nzL7BF5t7ItqpKViM</code></p>
+</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+    
+      
+        <div>
+	
+	<div style="text-align:center; color:#ccc; font-size:14px;">---------------本文结束<i class="fa fa-paw"></i>感谢您的阅读---------------</div>
+	
+</div>
+     
+   
+    
+
+    
+    
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/09/17/Hash-Table的简单解析/" rel="next" title="Hash Table的简单解析">
+                <i class="fa fa-chevron-left"></i> Hash Table的简单解析
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/09/20/Git学习随笔/" rel="prev" title="Git学习随笔(一)">
+                Git学习随笔(一) <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zOTgxMC8xNjMzNw=="></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">DC</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/dcandoyws" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:992824021@qq.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#token是什么"><span class="nav-number">1.</span> <span class="nav-text">token是什么</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#token的作用"><span class="nav-number">2.</span> <span class="nav-text">token的作用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#token的优势"><span class="nav-number">3.</span> <span class="nav-text">token的优势</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#支持跨区域访问："><span class="nav-number">3.1.</span> <span class="nav-text">支持跨区域访问：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#无状态（服务器可扩展性）："><span class="nav-number">3.2.</span> <span class="nav-text">无状态（服务器可扩展性）：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#去耦："><span class="nav-number">3.3.</span> <span class="nav-text">去耦：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#性能："><span class="nav-number">3.4.</span> <span class="nav-text">性能：</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#基于JWT的Token认证机制的实现"><span class="nav-number">4.</span> <span class="nav-text">基于JWT的Token认证机制的实现</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">DC</span>
+
+  
+</div>
+
+
+<div class="powered-by">
+	<i class="fa fa-user-md"></i>
+	<span id="busuanzi_container_site_pv">本站访问量：<span id="busuanzi_value_site_pv"></span>次
+	</span>
+		
+</span>
+</div>
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+<div class="theme-info">
+	<div class="powered-by"></div>
+	<span class="post-count">博客全站共5.1k字</span>
+</div>
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Muse</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+  
+  
+	<script type="text/javascript" src="//cdn.bootcss.com/canvas-nest.js/1.0.0/canvas-nest.min.js"></script>
+  
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
